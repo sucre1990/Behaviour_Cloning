@@ -3,6 +3,7 @@ import base64
 from datetime import datetime
 import os
 import shutil
+import cv2
 
 import numpy as np
 import socketio
@@ -44,8 +45,18 @@ class SimplePIController:
 
 
 controller = SimplePIController(0.1, 0.002)
-set_speed = 9
+set_speed = 30
 controller.set_desired(set_speed)
+
+def preprocessing_images(image):
+    #corping the top and bottom image
+    new_image = image[50:140,:,:]
+    #converting to YUV color space as (nivida's paper's structure)
+    new_image = cv2.resize(new_image,(200, 66), interpolation = cv2.INTER_AREA)
+    new_image = cv2.cvtColor(new_image, cv2.COLOR_BGR2YUV) 
+    #normalization
+
+    return new_image
 
 
 @sio.on('telemetry')
@@ -61,6 +72,7 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        image_array = preprocessing_images(image_array)
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
         throttle = controller.update(float(speed))
