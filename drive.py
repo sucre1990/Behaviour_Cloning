@@ -53,7 +53,7 @@ def preprocessing_images(image):
     new_image = image[50:140,:,:]
     #converting to YUV color space as (nivida's paper's structure)
     new_image = cv2.resize(new_image,(200, 66), interpolation = cv2.INTER_AREA)
-    new_image = cv2.cvtColor(new_image, cv2.COLOR_BGR2YUV) 
+    new_image = cv2.cvtColor(new_image, cv2.COLOR_RGB2YUV) 
     #normalization
 
     return new_image
